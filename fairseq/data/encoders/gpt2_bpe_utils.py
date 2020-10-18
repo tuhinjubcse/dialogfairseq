@@ -59,7 +59,6 @@ class Encoder:
         except ImportError:
             raise ImportError('Please install regex with: pip install regex')
 
-        # Should haved added re.IGNORECASE so BPE merges can happen for capitalized versions of contractions
         self.pat = self.re.compile(r"""'s|'t|'re|'ve|'m|<A0>|<EOT>| <EOT>|<V>|<A1>|<A2>| <A0>|<P>| <P>|<A1>| <A1>| <A2>| <V>| </s>|</s>|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+""")
 
     def bpe(self, token):
@@ -108,26 +107,12 @@ class Encoder:
 
     def encode(self, text):
         bpe_tokens = []
-        # print("Text is",text)
-        # print("All is" ,self.re.findall(self.pat, text))
         for token in self.re.findall(self.pat, text):
             token = ''.join(self.byte_encoder[b] for b in token.encode('utf-8'))
-            # if token in ['<A0>','<A1>','<A2>','<V>','</s>','\u0120<A0>','\u0120<A1>','\u0120<A2>','\u0120<V>','\u0120</s>']:
-                # print("Token is |",token,"|")
-                # token= token.lstrip()
-            #     bpe_tokens.extend(self.encoder[token])
-            # else:
-            #     print("Token here is ",token)
-            #     print(self.bpe(token),self.bpe(token))
-            #     for bpe_token in self.bpe(token).split(' '):
-            #         print(bpe_token,self.encoder[bpe_token])
             try:
                 bpe_tokens.extend(self.encoder[bpe_token] for bpe_token in self.bpe(token).split(' '))
             except:
-                # print("Text was",text)
                 print("Token is",token)
-                # print("pattern",self.re.findall(self.pat, text))
-        #print("bpe tokens is ",self.re.findall(self.pat, text),'\n',bpe_tokens)
         return bpe_tokens
 
     def decode(self, tokens):
@@ -141,7 +126,7 @@ class Encoder:
         return text
 
 def get_encoder(encoder_json_path, vocab_bpe_path):
-    encoder_json_path = "/lfs1/tuhin/fairseq/encoder.json"
+    encoder_json_path = "/content/dialogfairseq/encoder.json"
     with open(encoder_json_path, 'r') as f:
         encoder = json.load(f)
     with open(vocab_bpe_path, 'r', encoding="utf-8") as f:
